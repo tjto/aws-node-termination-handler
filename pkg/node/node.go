@@ -389,6 +389,34 @@ func (n Node) UncordonIfRebooted() error {
 	return nil
 }
 
+//ListPods will return a list of pods running in the node
+func (n Node) ListPods() ([]string, error) {
+	var podList []string
+	k8sNode, err := n.fetchKubernetesNode()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to fetch kubernetes node from API: %w", err)
+	}
+	clusterConfig, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, err
+	}
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(clusterConfig)
+	if err != nil {
+		return nil, err
+	}
+	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
+		FieldSelector: "spec.nodeName=" + k8sNode.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, pod := range pods.Items {
+		podList = append(podList, pod.Name)
+	}
+	return podList, nil
+}
+
 // fetchKubernetesNode will send an http request to the k8s api server and return the corev1 model node
 func (n Node) fetchKubernetesNode() (*corev1.Node, error) {
 	node := &corev1.Node{

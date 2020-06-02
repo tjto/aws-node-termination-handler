@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -186,7 +187,11 @@ func drainOrCordonIfNecessary(interruptionEventStore *interruptioneventstore.Sto
 			}
 			metrics.NodeActionsInc("pre-drain", nodeName, err)
 		}
-
+		// Get pod list
+		pods, err := node.ListPods()
+		if err != nil {
+			log.Log().Msgf("There was a problem for listing pods running in the node: %v", err)
+		}
 		if nthConfig.CordonOnly {
 			err := node.Cordon()
 			if err != nil {
@@ -207,7 +212,7 @@ func drainOrCordonIfNecessary(interruptionEventStore *interruptioneventstore.Sto
 
 		interruptionEventStore.MarkAllAsDrained()
 		if nthConfig.WebhookURL != "" {
-			webhook.Post(nodeMetadata, drainEvent, nthConfig)
+			webhook.Post(nodeMetadata, drainEvent, nthConfig, strings.Join(pods, ","))
 		}
 	}
 }

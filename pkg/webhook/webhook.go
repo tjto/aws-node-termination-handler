@@ -31,10 +31,12 @@ import (
 type combinedDrainData struct {
 	ec2metadata.NodeMetadata
 	interruptionevent.InterruptionEvent
+	Cluster string
+	Pods    string
 }
 
 // Post makes a http post to send drain event data to webhook url
-func Post(additionalInfo ec2metadata.NodeMetadata, event *interruptionevent.InterruptionEvent, nthconfig config.Config) {
+func Post(additionalInfo ec2metadata.NodeMetadata, event *interruptionevent.InterruptionEvent, nthconfig config.Config, pods string) {
 
 	webhookTemplate, err := template.New("message").Parse(nthconfig.WebhookTemplate)
 	if err != nil {
@@ -42,7 +44,7 @@ func Post(additionalInfo ec2metadata.NodeMetadata, event *interruptionevent.Inte
 		return
 	}
 
-	var combined = combinedDrainData{additionalInfo, *event}
+	var combined = combinedDrainData{additionalInfo, *event, nthconfig.Cluster, pods}
 
 	var byteBuffer bytes.Buffer
 	err = webhookTemplate.Execute(&byteBuffer, combined)

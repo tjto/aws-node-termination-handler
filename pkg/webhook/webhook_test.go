@@ -107,7 +107,7 @@ func TestPostSuccess(t *testing.T) {
 
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 }
 
 func TestPostTemplateParseError(t *testing.T) {
@@ -124,7 +124,7 @@ func TestPostTemplateParseError(t *testing.T) {
 
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 }
 
 func TestPostTemplateExecutionError(t *testing.T) {
@@ -141,7 +141,7 @@ func TestPostTemplateExecutionError(t *testing.T) {
 
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 }
 
 func TestPostNewHttpRequestError(t *testing.T) {
@@ -157,7 +157,7 @@ func TestPostNewHttpRequestError(t *testing.T) {
 	}
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 }
 
 func TestPostHeaderParseFail(t *testing.T) {
@@ -173,7 +173,7 @@ func TestPostHeaderParseFail(t *testing.T) {
 	}
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 }
 
 func TestPostTimeout(t *testing.T) {
@@ -192,7 +192,7 @@ func TestPostTimeout(t *testing.T) {
 	}
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 	h.Equals(t, 1, requestCount)
 }
 
@@ -212,7 +212,7 @@ func TestPostBadResponseCode(t *testing.T) {
 	}
 	nodeMetadata := ec2metadata.NodeMetadata{}
 
-	webhook.Post(nodeMetadata, event, nthconfig)
+	webhook.Post(nodeMetadata, event, nthconfig, "test-1,test-2")
 	h.Equals(t, 1, requestCount)
 }
 

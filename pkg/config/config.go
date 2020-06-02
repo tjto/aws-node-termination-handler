@@ -44,7 +44,7 @@ const (
 	webhookHeadersConfigKey                 = "WEBHOOK_HEADERS"
 	webhookHeadersDefault                   = `{"Content-type":"application/json"}`
 	webhookTemplateConfigKey                = "WEBHOOK_TEMPLATE"
-	webhookTemplateDefault                  = `{"text":"[NTH][Instance Interruption] EventID: {{ .EventID }} - Kind: {{ .Kind }} - Description: {{ .Description }} - Start Time: {{ .StartTime }}"}`
+	webhookTemplateDefault                  = `{"text":"[NTH][Instance Interruption] EventID: {{ .EventID }} - Kind: {{ .Kind }} - Description: {{ .Description }} - Start Time: {{ .StartTime }} - Cluster: {{ .Cluster }} - Pods: {{ .Pods }} "}`
 	enableScheduledEventDrainingConfigKey   = "ENABLE_SCHEDULED_EVENT_DRAINING"
 	enableScheduledEventDrainingDefault     = false
 	enableSpotInterruptionDrainingConfigKey = "ENABLE_SPOT_INTERRUPTION_DRAINING"
@@ -63,6 +63,8 @@ const (
 	// https://github.com/prometheus/prometheus/wiki/Default-port-allocations
 	prometheusPortDefault   = 9092
 	prometheusPortConfigKey = "PROMETHEUS_SERVER_PORT"
+	clusterKey                              = "CLUSTER"
+	clusterDefault                          = "dev"
 )
 
 //Config arguments set via CLI, environment variables, or defaults
@@ -89,6 +91,7 @@ type Config struct {
 	UptimeFromFile                 string
 	EnablePrometheus               bool
 	PrometheusPort                 int
+	Cluster                        string
 }
 
 //ParseCliArgs parses cli arguments and uses environment variables as fallback values
@@ -125,6 +128,7 @@ func ParseCliArgs() (config Config, err error) {
 	flag.StringVar(&config.UptimeFromFile, "uptime-from-file", getEnv(uptimeFromFileConfigKey, uptimeFromFileDefault), "If specified, read system uptime from the file path (useful for testing).")
 	flag.BoolVar(&config.EnablePrometheus, "enable-prometheus-server", getBoolEnv(enablePrometheusConfigKey, enablePrometheusDefault), "If true, a http server is used for exposing prometheus metrics in /metrics endpoint.")
 	flag.IntVar(&config.PrometheusPort, "prometheus-server-port", getIntEnv(prometheusPortConfigKey, prometheusPortDefault), "The port for running the prometheus http server.")
+	flag.StringVar(&config.Cluster, "cluster", getEnv(clusterKey, clusterDefault), "Kubernetes cluster name.")
 
 	flag.Parse()
 
@@ -147,6 +151,7 @@ func ParseCliArgs() (config Config, err error) {
 	fmt.Printf(
 		"aws-node-termination-handler arguments: \n"+
 			"\tdry-run: %t,\n"+
+			"\tcluster %s, \n"+
 			"\tnode-name: %s,\n"+
 			"\tmetadata-url: %s,\n"+
 			"\tkubernetes-service-host: %s,\n"+
@@ -166,6 +171,7 @@ func ParseCliArgs() (config Config, err error) {
 			"\tenable-prometheus-server: %t,\n"+
 			"\tprometheus-server-port: %d,\n",
 		config.DryRun,
+		config.Cluster,
 		config.NodeName,
 		config.MetadataURL,
 		config.KubernetesServiceHost,
